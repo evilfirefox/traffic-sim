@@ -5,6 +5,90 @@
     <title>traffic-sim</title>
 </head>
 <body>
+<script src="https://code.jquery.com/jquery-3.1.0.slim.min.js"
+        integrity="sha256-cRpWjoSOw5KcyIOaZNo4i6fZ9tKPhYYb6i5T9RSVJG8="
+        crossorigin="anonymous">
+</script>
+
+<script>
+    const CANVAS_TEMPLATE = '<canvas id="main_canvas" height="__height__" width="__width__"></canvas>';
+    const CANVAS_WIDTH = 640;
+    const CANVAS_HEIGHT = 480;
+    const FPS = 30;
+
+    var canvasElement = $(CANVAS_TEMPLATE.replace('__height__', CANVAS_HEIGHT).replace('__width__', CANVAS_WIDTH))
+            .appendTo('body');
+
+    var game = {
+        mainWidth: CANVAS_WIDTH,
+        mainHeight: CANVAS_HEIGHT,
+        main: canvasElement.get(0).getContext('2d'),
+        cars: [],
+
+        initialize: function () {
+            console.log('game.initialize');
+            this.reDraw();
+            for (i = 0; i < 5; i++) {
+                this.cars[i] = Car({coordinates: {X: i * 25, Y: i * 25}});
+            }
+        },
+        reDraw: function () {
+            console.log('game.redraw');
+            this.main.clearRect(0, 0, this.mainWidth, this.mainWidth);
+
+            this.main.fillStyle = '#333';
+            this.main.fillRect(0, 0, this.mainWidth, this.mainWidth);
+        },
+        execute: function () {
+            console.log('game.execute');
+            this.reDraw();
+
+            for (i in this.cars) {
+                this.cars[i].reCalculate();
+                this.cars[i].reDraw(this.main);
+            }
+        }
+    };
+
+    function Car(object) {
+        object.width = 25;
+        object.length = 50;
+        object.color = '#fff';
+
+        object.coordinates = {
+            X: 50,
+            Y: 50
+        };
+
+        object.velocity = {
+            X: 5,
+            Y: 5
+        };
+
+        object.reCalculate = function () {
+            console.log('car.recalculate');
+            object.coordinates.X += object.velocity.X;
+            object.coordinates.Y += object.velocity.Y;
+        };
+
+        object.reDraw = function (canvas) {
+            console.log('car.redraw');
+            canvas.fillStyle = object.color;
+            canvas.fillRect(object.coordinates.X, object.coordinates.Y, object.width, object.length);
+        };
+
+        return object;
+    }
+
+    $(document).ready(function () {
+        game.initialize();
+        // setInterval(game.execute, FPS * 0.001)
+        $('#strobe').on('click', function () {
+            game.execute();
+        });
+    });
+</script>
+<button name="strobe" id="strobe">strobe</button>
 
 </body>
 </html>
